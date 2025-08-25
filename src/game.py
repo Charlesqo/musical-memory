@@ -2,13 +2,20 @@ import random
 from pathlib import Path
 from typing import Iterable, List, Sequence
 
+"""<<<<<<< codex/add-score-recording-module
 from .score import ScoreManager
+=======
+from score_manager import ScoreManager
+>>>>>>> main"""
 
 # Default notes available in the game. They can be overridden when calling
 # the generation functions if a different set of notes is desired.
 NOTES: Sequence[str] = ("C", "D", "E", "F", "G", "A", "B")
 
+"""<<<<<<< codex/add-score-recording-module
  
+=======
+>>>>>>> main"""
 def generate_sequence(length: int, notes: Sequence[str] = NOTES) -> List[str]:
     """Generate a random sequence of musical notes.
 
@@ -78,8 +85,9 @@ def check_sequence(user_input: Iterable[str], expected: Iterable[str]) -> bool:
     return list(user_input) == list(expected)
 
 
+"""<<<<<<< codex/add-score-recording-module
 def end_game(score: int, file_path: Path | None = None) -> str:
-    """Update the stored high score and return a player-facing message.
+    """"""Update the stored high score and return a player-facing message.
 
     Args:
         score: The final score achieved by the player.
@@ -87,7 +95,7 @@ def end_game(score: int, file_path: Path | None = None) -> str:
 
     Returns:
         A message indicating whether a new high score was achieved.
-    """
+    """"""
     manager = ScoreManager(file_path) if file_path else ScoreManager()
     manager.load()
     is_new = manager.record(score)
@@ -103,3 +111,14 @@ if __name__ == "__main__":
     # Simulate a game score for demonstration purposes.
     demo_score = random.randint(0, 100)
     end_game(demo_score)
+=======
+def end_game(score_manager: ScoreManager, score: int, output: Path) -> None:
+    """"""Persist the player's score using ``score_manager``.
+
+    Args:
+        score_manager: Object responsible for storing scores.
+        score: The player's final score.
+        output: Destination file for the stored score.
+    """"""
+    score_manager.save_score(score, output)
+>>>>>>> main"""
