@@ -35,6 +35,8 @@ def _load_config(path: str) -> List[str]:
         args.extend(["--difficulty", data["difficulty"]])
     if data.get("audio"):
         args.append("--audio")
+    if "mode" in data:
+        args.extend(["--mode", data["mode"]])
     return args
 
 
