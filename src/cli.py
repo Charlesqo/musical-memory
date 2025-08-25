@@ -1,3 +1,9 @@
+"""Command-line interface for the Musical Memory game.
+
+This module provides a CLI for playing the game, as well as experimental
+GUI and web modes that can be expanded in the future.
+"""
+
 import argparse
 import sys
 from pathlib import Path
@@ -33,6 +39,14 @@ except ImportError:  # pragma: no cover
 
 
 def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
+    """Parse command-line options for the game.
+
+    Parameters
+    ----------
+    argv:
+        Optional list of argument strings. When ``None`` the arguments are
+        taken from :data:`sys.argv`.
+    """
     parser = argparse.ArgumentParser(description="Musical memory game")
     parser.add_argument("--levels", type=int, default=5, help="number of levels to play")
     parser.add_argument(
@@ -56,6 +70,8 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
 
 
 def _run_cli(args: argparse.Namespace) -> None:
+    """Run the interactive command-line version of the game."""
+
     print(_colour("Welcome to Musical Memory!", Fore.CYAN))
 
     manager = ScoreManager()
@@ -111,6 +127,8 @@ def _run_cli(args: argparse.Namespace) -> None:
 
 
 def _run_gui(args: argparse.Namespace) -> None:  # pragma: no cover - manual mode
+    """Run a very small experimental Tk GUI."""
+
     import tkinter as tk
 
     root = tk.Tk()
@@ -120,6 +138,8 @@ def _run_gui(args: argparse.Namespace) -> None:  # pragma: no cover - manual mod
 
 
 def _run_web(args: argparse.Namespace) -> None:  # pragma: no cover - manual mode
+    """Start a minimal HTTP server announcing the web mode."""
+
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
     class Handler(BaseHTTPRequestHandler):
@@ -140,6 +160,8 @@ def _run_web(args: argparse.Namespace) -> None:  # pragma: no cover - manual mod
 
 
 def main(argv: List[str] | None = None) -> None:
+    """Entry point choosing between CLI, GUI and web modes."""
+
     args = parse_args(argv)
     if args.mode == "cli":
         _run_cli(args)
