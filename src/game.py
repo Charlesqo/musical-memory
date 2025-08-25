@@ -8,7 +8,7 @@ from .score import ScoreManager
 # the generation functions if a different set of notes is desired.
 NOTES: Sequence[str] = ("C", "D", "E", "F", "G", "A", "B")
 
-
+ 
 def generate_sequence(length: int, notes: Sequence[str] = NOTES) -> List[str]:
     """Generate a random sequence of musical notes.
 
@@ -44,12 +44,8 @@ def sequence_length(level: int, base_length: int = 3, step: int = 1) -> int:
     return base_length + (level - 1) * step
 
 
-def generate_level_sequence(
-    level: int,
-    base_length: int = 3,
-    step: int = 1,
-    notes: Sequence[str] = NOTES,
-) -> List[str]:
+def generate_level_sequence(level: int, base_length: int = 3, step: int = 1,
+                             notes: Sequence[str] = NOTES) -> List[str]:
     """Generate a sequence for the specified level.
 
     The length of the sequence is derived from :func:`sequence_length` so that
