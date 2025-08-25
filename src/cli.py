@@ -1,6 +1,8 @@
 import argparse
 from typing import List
 
+from .score import ScoreManager
+
 # Support running as module or script
 try:  # pragma: no cover - import resolution
     from .game import generate_next_note, play_sequence, check_sequence
@@ -33,8 +35,12 @@ def main(argv: List[str] | None = None) -> None:
     args = parse_args(argv)
     print("Welcome to Musical Memory!")
 
+    manager = ScoreManager()
+    manager.load()
+
     while True:
         sequence: List[int] = []
+        score = 0
         for level in range(1, args.levels + 1):
             sequence.append(generate_next_note(args.difficulty))
             print(f"Level {level}. Listen to the sequence:")
@@ -47,11 +53,20 @@ def main(argv: List[str] | None = None) -> None:
                 break
             if check_sequence(sequence, user_sequence):
                 print("Correct!\n")
+                score = level
             else:
                 print("Wrong sequence. Game over.")
                 break
         else:
             print("Congratulations! You completed all levels.")
+            score = args.levels
+
+        is_high = manager.save_score(score)
+        if is_high:
+            print(f"New high score: {manager.high_score}!")
+        else:
+            print(f"Your score: {score}. High score: {manager.high_score}.")
+
         again = input("Play again? (y/n): ").strip().lower()
         if again != "y":
             print("Thanks for playing!")
