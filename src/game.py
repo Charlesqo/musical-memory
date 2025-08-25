@@ -1,5 +1,8 @@
 import random
+from pathlib import Path
 from typing import Iterable, List, Sequence
+
+from score_manager import ScoreManager
 
 # Default notes available in the game. They can be overridden when calling
 # the generation functions if a different set of notes is desired.
@@ -72,3 +75,14 @@ def check_sequence(user_input: Iterable[str], expected: Iterable[str]) -> bool:
         ``False``.
     """
     return list(user_input) == list(expected)
+
+
+def end_game(score_manager: ScoreManager, score: int, output: Path) -> None:
+    """Persist the player's score using ``score_manager``.
+
+    Args:
+        score_manager: Object responsible for storing scores.
+        score: The player's final score.
+        output: Destination file for the stored score.
+    """
+    score_manager.save_score(score, output)
