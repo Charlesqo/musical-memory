@@ -51,3 +51,12 @@ class ScoreManager:
             new_high = True
         self.save()
         return new_high
+
+    def save_score(self, score: int) -> bool:
+        """Compatibility wrapper that records ``score``.
+
+        This method simply forwards to :meth:`record` so existing code can
+        call ``save_score`` while still updating the high score and history.
+        It returns ``True`` if ``score`` is a new high score.
+        """
+        return self.record(score)
