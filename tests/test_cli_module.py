@@ -25,8 +25,46 @@ def _make_dummy_manager():
     return DummyManager
 
 
+def _make_dummy_profile_manager():
+    class DummyProfileManager:
+        instances: List["DummyProfileManager"] = []
+
+        def __init__(self):
+            self.saved: dict[str, List[int]] = {}
+            DummyProfileManager.instances.append(self)
+
+        def load(self) -> None:  # pragma: no cover - trivial
+            pass
+
+        def record_score(self, name: str, score: int) -> bool:
+            self.saved.setdefault(name, []).append(score)
+            return True
+
+        class _Profile:
+            def __init__(self) -> None:
+                self.settings = {}
+
+        def get_profile(self, name: str) -> "DummyProfileManager._Profile":
+            return DummyProfileManager._Profile()
+
+        def save(self) -> None:  # pragma: no cover - trivial
+            pass
+
+        def leaderboard(self):  # pragma: no cover - minimal
+            return [(name, max(scores)) for name, scores in self.saved.items()]
+
+        def import_data(self, path):  # pragma: no cover - trivial
+            pass
+
+        def export_data(self, path):  # pragma: no cover - trivial
+            pass
+
+    return DummyProfileManager
+
+
 def test_cli_invalid_input(monkeypatch, capsys):
     Dummy = _make_dummy_manager()
+    DummyProfile = _make_dummy_profile_manager()
     # save_score should indicate not a new high score to exercise the other branch
     def save_score(self, score: int) -> bool:
         self.saved.append(score)
@@ -36,8 +74,9 @@ def test_cli_invalid_input(monkeypatch, capsys):
     Dummy.save_score = save_score  # type: ignore
 
     monkeypatch.setattr(cli, "ScoreManager", Dummy)
+    monkeypatch.setattr(cli, "ProfileManager", DummyProfile)
     monkeypatch.setattr(cli, "generate_next_note", lambda diff: 1)
-    monkeypatch.setattr(cli, "play_sequence", lambda seq, use_audio=False: None)
+    monkeypatch.setattr(cli, "play_sequence", lambda seq, use_audio=False, delay=0: None)
 
     inputs = iter(["not numbers", "n"])
     monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
@@ -50,11 +89,13 @@ def test_cli_invalid_input(monkeypatch, capsys):
 
 def test_cli_level_progress_and_score_update(monkeypatch, capsys):
     Dummy = _make_dummy_manager()
+    DummyProfile = _make_dummy_profile_manager()
     monkeypatch.setattr(cli, "ScoreManager", Dummy)
+    monkeypatch.setattr(cli, "ProfileManager", DummyProfile)
 
     notes = iter([1, 2])
     monkeypatch.setattr(cli, "generate_next_note", lambda diff: next(notes))
-    monkeypatch.setattr(cli, "play_sequence", lambda seq, use_audio=False: None)
+    monkeypatch.setattr(cli, "play_sequence", lambda seq, use_audio=False, delay=0: None)
 
     inputs = iter(["1", "1 2", "n"])
     monkeypatch.setattr(builtins, "input", lambda _: next(inputs))

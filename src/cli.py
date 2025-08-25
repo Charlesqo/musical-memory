@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import List
 
 from .score import ScoreManager
+from .profile import ProfileManager
 
 # Optional colour support ----------------------------------------------------
 try:  # pragma: no cover - optional dependency
@@ -56,6 +57,33 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
         help="difficulty determines available notes",
     )
     parser.add_argument(
+        "--tempo",
+        type=float,
+        default=0.5,
+        help="delay between notes in seconds",
+    )
+    parser.add_argument(
+        "--step",
+        type=int,
+        default=1,
+        help="how many new notes are added each level",
+    )
+    parser.add_argument(
+        "--user",
+        default="player",
+        help="profile name for saving progress",
+    )
+    parser.add_argument(
+        "--import-data",
+        type=Path,
+        help="import profile data from file before playing",
+    )
+    parser.add_argument(
+        "--export-data",
+        type=Path,
+        help="export profile data to file after playing",
+    )
+    parser.add_argument(
         "--audio",
         action="store_true",
         help="play tones using simpleaudio if available",
@@ -76,14 +104,19 @@ def _run_cli(args: argparse.Namespace) -> None:
 
     manager = ScoreManager()
     manager.load()
+    profiles = ProfileManager()
+    profiles.load()
+    if args.import_data:
+        profiles.import_data(args.import_data)
 
     while True:
         sequence: List[int] = []
         score = 0
         for level in range(1, args.levels + 1):
-            sequence.append(generate_next_note(args.difficulty))
+            for _ in range(args.step):
+                sequence.append(generate_next_note(args.difficulty))
             print(_colour(f"Level {level}. Listen to the sequence:", Fore.YELLOW))
-            play_sequence(sequence, use_audio=args.audio)
+            play_sequence(sequence, use_audio=args.audio, delay=args.tempo)
             guess = input("Repeat the sequence separated by spaces: ").strip()
             try:
                 user_sequence = [int(x) for x in guess.split()]
@@ -119,6 +152,20 @@ def _run_cli(args: argparse.Namespace) -> None:
                     f"Your score: {score}. High score: {manager.high_score}.", Fore.MAGENTA
                 )
             )
+
+        profiles.record_score(args.user, score)
+        profile = profiles.get_profile(args.user)
+        profile.settings.update(
+            {"difficulty": args.difficulty, "tempo": args.tempo, "step": args.step}
+        )
+        profiles.save()
+        lb = profiles.leaderboard()
+        print(_colour("Leaderboard:", Fore.CYAN))
+        for name, hs in lb:
+            print(f"  {name}: {hs}")
+
+        if args.export_data:
+            profiles.export_data(args.export_data)
 
         again = input("Play again? (y/n): ").strip().lower()
         if again != "y":
