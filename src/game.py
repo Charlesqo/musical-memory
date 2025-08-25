@@ -84,7 +84,7 @@ def check_sequence(user_input: Iterable[str], expected: Iterable[str]) -> bool:
 
 def end_game(score: int, file_path: Path | None = None) -> str:
     """Handle end-of-game logic by updating and reporting the high score."""
-    manager = ScoreManager(file_path or ScoreManager().file_path)
+    manager = ScoreManager(file_path) if file_path else ScoreManager()
     manager.load()
     is_new = manager.record(score)
     message = (
