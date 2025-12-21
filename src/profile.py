@@ -79,6 +79,19 @@ class ProfileManager:
         self.save()
         return new_high
 
+    def reset_profile(self, name: str) -> bool:
+        """Reset ``name`` back to an empty profile.
+
+        Returns ``True`` if a profile existed and was reset. Missing profiles
+        are left untouched and return ``False`` so callers can differentiate
+        between "reset" and "nothing to do" states.
+        """
+        if name not in self.profiles:
+            return False
+        self.profiles[name] = UserProfile(name)
+        self.save()
+        return True
+
     def leaderboard(self) -> List[Tuple[str, int]]:
         """Return leaderboard as list of ``(name, high_score)`` tuples."""
         return sorted(
